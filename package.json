@@ -10,6 +10,8 @@
   "author": "Nick Tsutsunava",
   "license": "MIT",
   "dependencies": {
+    "audio-generator": "^2.1.2",
+    "audio-speaker": "^1.5.0",
     "blinkstick": "git://github.com/arvydas/blinkstick-node.git#node-hid",
     "bluebird": "^3.5.1",
     "random-int": "^1.0.0",

@@ -10,24 +10,6 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 var x = 0
 var sign = 1
 
-// function setColor(color) {
-//     return new Promise((resolve, reject) => {
-//         try {
-//             device.setColor(color, { 'channel': 0, 'index': x })
-//             return resolve()
-//         } catch (e) {
-//             return reject(e)
-//         }
-//     })
-// }
-
-function printString(string) {
-    return new Promise((resolve, reject) => {
-        console.log(string)
-        return resolve()
-    })
-}
-
 function run() {
     return new Promise((resolve, reject) => {
         Promise.delay(20)
