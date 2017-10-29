@@ -58,10 +58,9 @@ function setStripColor(r, g, b) {
 
         let params = device.interpretParameters(r, g, b)
 
-        let arr = new Array(activeLeds * 3).fill([params.green, params.red, params.blue])
+        let arr = new Array(activeLeds).fill([params.green, params.red, params.blue])
         let flat = [].concat.apply([], arr)
-        console.log(activeLeds)
-        console.log(flat.length)
+
         device.setColors(0, flat)
         return resolve()
     })
@@ -69,7 +68,8 @@ function setStripColor(r, g, b) {
 }
 
 function off() {
-    setStripColor("black")
+    let arr = new Array(MAX_LEDS).fill(0)
+    device.setColors(0, arr)
 }
 
 /**
