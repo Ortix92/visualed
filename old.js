@@ -18,7 +18,7 @@ function run() {
     return new Promise((resolve, reject) => {
         setStripColor(...color)
         return resolve()
-    }).delay(100).then(run)
+    }).delay(50).then(run)
 }
 
 function increaseActiveLeds() {
@@ -27,7 +27,7 @@ function increaseActiveLeds() {
             activeLeds++
         }
         return resolve()
-    }).delay(1000).then(increaseActiveLeds)
+    }).delay(50).then(increaseActiveLeds)
 }
 
 function changeColor() {
@@ -38,7 +38,7 @@ function changeColor() {
             color[1] = color[1] + 1
         }
         return resolve()
-    }).delay(100).then(changeColor)
+    }).delay(10).then(changeColor)
 }
 
 // function run() {
@@ -68,7 +68,7 @@ function setStripColor(r, g, b) {
 }
 
 function off() {
-    let arr = new Array(MAX_LEDS).fill(0)
+    let arr = new Array(MAX_LEDS*3).fill(0)
     device.setColors(0, arr)
 }
 
