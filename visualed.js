@@ -16,10 +16,18 @@ class Visualed {
         this.setStripColor(this.color).delay(delay).then(() => { this.run() })
     }
 
+    swap(arr, i, j) {
+        var temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        return arr
+    }
+
     rainbowMulti(delay, j = 0) {
         for (var i = 0; i < this.MAX_LEDS; i++) {
             var h = i / this.MAX_LEDS * hsv.max[0]
             var color = hsv.rgb([h, hsv.max[1], hsv.max[2]])
+            color = this.swap(color, 0, 1)
             this.color.push(color)
         }
         return Promise.resolve()
