@@ -1,16 +1,28 @@
 var blinkstick = require("blinkstick")
-let Promise = require("bluebird")
+var Promise = require("bluebird")
+var rgb = require("color-space/rgb")
+var hsv = require("color-space/hsv")
+
 const device = Promise.promisifyAll(blinkstick.findFirst())
 class Visualed {
 
     constructor() {
         this.MAX_LEDS = 56
-        this.activeLeds = 1
-        this.color = [255, 0, 0]
+        this.activeLeds = 30
+        this.color = []
     }
 
     run(delay) {
-        this.setStripColor(...this.color).delay(delay).then(() => { this.run() })
+        this.setStripColor(this.color).delay(delay).then(() => { this.run() })
+    }
+
+    rainbowMulti(delay, j = 0) {
+        for (var i = 0; i < this.MAX_LEDS; i++) {
+            var h = i / this.MAX_LEDS * hsv.max[0]
+            var color = hsv.rgb([h, hsv.max[1], hsv.max[2]])
+            this.color.push(color)
+        }
+        return Promise.resolve()
     }
 
     rainbowSingle(delay, f, i = 0) {
@@ -24,7 +36,7 @@ class Visualed {
         let r = Math.floor((Math.sin(sample * 2 * Math.PI * f)) * 127)
         let g = Math.floor((Math.sin(sample * 2 * Math.PI * f + 2 * Math.PI / 3)) * 127)
         let b = Math.floor((Math.sin(sample * 2 * Math.PI * f + 4 * Math.PI / 3)) * 127)
-        this.color = [r, g, b]
+        this.color = this.singleColorArray(r, g, b)
         // console.log(`[Sample: ${sample}] [i: ${i}] [r: ${r}]`)
         // console.log(sample)
         return Promise.resolve().delay(delay).then(() => {
@@ -33,16 +45,21 @@ class Visualed {
         })
     }
 
-
-
-    setStripColor(r, g, b) {
+    singleColorArray(r, g, b) {
         let params = device.interpretParameters(r, g, b)
         let arr = new Array(this.activeLeds).fill([params.green, params.red, params.blue])
         let flat = [].concat.apply([], arr)
-        device.setColors(0, flat)
+        return flat
+    }
 
+    flatten(colors) {
+        return [].concat.apply([], colors)
+    }
+
+    setStripColor(colors) {
+
+        device.setColors(0, this.flatten(colors))
         return Promise.resolve()
-
     }
 
     increase(delay) {
@@ -87,11 +104,10 @@ class Visualed {
 module.export = new Visualed
 
 let app = new Visualed
-
-app.run(10)
-app.rainbowSingle(10, 0.1)
 // app.oscillate(10)
-app.on()
+app.run(10)
+app.rainbowMulti(10).then(() => app.run(10))
+
 
 process.on('SIGINT', function () {
     console.log("Caught interrupt signal");
