@@ -7,13 +7,14 @@ const device = Promise.promisifyAll(blinkstick.findFirst())
 class Visualed {
 
     constructor() {
+        this.fps = 60
         this.MAX_LEDS = 56
         this.activeLeds = 30
-        this.color = []
+        this.color = new Array(this.MAX_LEDS)
     }
 
-    run(delay) {
-        this.setStripColor(this.color).delay(delay).then(() => { this.run() })
+    run() {
+        this.setStripColor(this.color).delay(1 / this.fps).then(() => { this.run(1 / this.fps) })
     }
 
     swap(arr, i, j) {
@@ -23,14 +24,34 @@ class Visualed {
         return arr
     }
 
-    rainbowMulti(delay, j = 0) {
+    rainbowSweep(f = 1, j = 0) {
+
+        var sample = j * this.fps / this.MAX_LEDS * f
+
+        if (sample > this.MAX_LEDS) {
+            j = 0
+            sample = 0
+        }
+
         for (var i = 0; i < this.MAX_LEDS; i++) {
-            var h = i / this.MAX_LEDS * hsv.max[0]
+            var pos = (i + sample)
+            var h = pos / this.MAX_LEDS * hsv.max[0]
             var color = hsv.rgb([h, hsv.max[1], hsv.max[2]])
             color = this.swap(color, 0, 1)
-            this.color.push(color)
+            this.color[i] = color
         }
-        return Promise.resolve()
+        return Promise.resolve().delay(1 / this.fps).then(() => {
+            j++
+            this.rainbowSweep(f, j)
+        })
+    }
+
+    rotate(delay, reverse = false) {
+        if (reverse)
+            this.color.unshift(this.color.pop())
+        else
+            this.color.push(this.color.shift())
+        return Promise.resolve().delay(delay).then(() => { this.rotate(delay, reverse) })
     }
 
     rainbowSingle(delay, f, i = 0) {
@@ -65,8 +86,14 @@ class Visualed {
     }
 
     setStripColor(colors) {
+        var flat = this.flatten(colors)
 
-        device.setColors(0, this.flatten(colors))
+        // Check if array is not borked
+        if(flat[0] === undefined) {
+            console.log('Array borked')
+            return Promise.reject('Color array contains undefined value at position 0')
+        }
+        device.setColors(0, flat)
         return Promise.resolve()
     }
 
@@ -113,9 +140,8 @@ module.export = new Visualed
 
 let app = new Visualed
 // app.oscillate(10)
-app.run(10)
-app.rainbowMulti(10).then(() => app.run(10))
-
+app.rainbowSweep(0.5)
+app.run()
 
 process.on('SIGINT', function () {
     console.log("Caught interrupt signal");
