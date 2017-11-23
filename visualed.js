@@ -2,6 +2,7 @@ var blinkstick = require("blinkstick")
 var Promise = require("bluebird")
 var rgb = require("color-space/rgb")
 var hsv = require("color-space/hsv")
+var keypress = require('keypress');
 
 const device = Promise.promisifyAll(blinkstick.findFirst())
 class Visualed {
@@ -11,10 +12,12 @@ class Visualed {
         this.MAX_LEDS = 56
         this.activeLeds = 30
         this.color = new Array(this.MAX_LEDS)
+        this.animationSpeed = 0.1;
+        this.listenToKill()
     }
 
     run() {
-        this.setStripColor(this.color).delay(1 / this.fps).then(() => { this.run(1 / this.fps) })
+        return this.setStripColor(this.color).delay(1 / this.fps).then(() => { this.run(1 / this.fps) })
     }
 
     swap(arr, i, j) {
@@ -24,8 +27,8 @@ class Visualed {
         return arr
     }
 
-    rainbowSweep(f = 1, j = 0) {
-
+    rainbowSweep(j = 0) {
+        var f = this.animationSpeed;
         var sample = j * this.fps / this.MAX_LEDS * f
 
         if (sample > this.MAX_LEDS) {
@@ -42,7 +45,7 @@ class Visualed {
         }
         return Promise.resolve().delay(1 / this.fps).then(() => {
             j++
-            this.rainbowSweep(f, j)
+            this.rainbowSweep(j)
         })
     }
 
@@ -89,7 +92,7 @@ class Visualed {
         var flat = this.flatten(colors)
 
         // Check if array is not borked
-        if(flat[0] === undefined) {
+        if (flat[0] === undefined) {
             console.log('Array borked')
             return Promise.reject('Color array contains undefined value at position 0')
         }
@@ -134,17 +137,19 @@ class Visualed {
         return Promise.resolve()
     }
 
+    listenToKill() {
+        process.on('SIGINT', () => {
+            console.log("Caught interrupt signal");
+            this.off()
+            process.exit();
+        })
+    }
 }
 
-module.export = new Visualed
+module.exports = new Visualed
 
-let app = new Visualed
-// app.oscillate(10)
-app.rainbowSweep(0.5)
-app.run()
+// let app = new Visualed
+// // app.oscillate(10)
+// app.rainbowSweep()
+// app.run()
 
-process.on('SIGINT', function () {
-    console.log("Caught interrupt signal");
-    app.off()
-    process.exit();
-})
