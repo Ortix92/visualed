@@ -12,7 +12,7 @@
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
-      </v-navigation-drawer> 
+      </v-navigation-drawer>
       <v-toolbar fixed app :clipped-left="clipped">
         <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
         <v-btn icon @click.native.stop="miniVariant = !miniVariant">
@@ -57,21 +57,21 @@
 
 <script>
 export default {
-  name: "visualed",
+  name: 'visualed',
   data: () => ({
     clipped: false,
     drawer: true,
     fixed: false,
     items: [
-      { icon: "apps", title: "Welcome", to: "/" },
-      { icon: "bubble_chart", title: "Inspire", to: "/inspire" }
+      { icon: 'apps', title: 'Welcome', to: '/' },
+      { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' }
     ],
     miniVariant: false,
     right: true,
     rightDrawer: false,
-    title: "Vuetify.js"
+    title: 'Vuetify.js'
   })
-};
+}
 </script>
 
 <style>

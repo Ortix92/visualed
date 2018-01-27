@@ -1,22 +1,24 @@
-var blinkstick = require("blinkstick")
-var Promise = require("bluebird")
-var rgb = require("color-space/rgb")
-var hsv = require("color-space/hsv")
-var keypress = require('keypress');
+import blinkstick from './blinkstick'
+import Promise from 'bluebird'
+import rgb from 'color-space/rgb'
+import hsv from 'color-space/hsv'
+import keypress from 'keypress'
 
-const device = Promise.promisifyAll(blinkstick.findFirst())
-class Visualed {
+const device = blinkstick.findFirst()
+
+export default class Visualed {
 
     constructor() {
         this.fps = 60
-        this.MAX_LEDS = 56
-        this.activeLeds = 30
+        this.MAX_LEDS = 56 // the total amount of leds
+        this.activeLeds = 8 // the leds that are turned on at a time
         this.color = new Array(this.MAX_LEDS)
-        this.animationSpeed = 0.1;
+        this.animationSpeed = 0.05;
         this.listenToKill()
+        this.mode = ""
     }
 
-    run() {
+    run(mode) {
         return this.setStripColor(this.color).delay(1 / this.fps).then(() => { this.run(1 / this.fps) })
     }
 
@@ -145,8 +147,6 @@ class Visualed {
         })
     }
 }
-
-module.exports = new Visualed
 
 // let app = new Visualed
 // // app.oscillate(10)
